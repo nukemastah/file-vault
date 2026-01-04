@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Secure P2P File Vault</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Secure P2P File Vault</h1>
+            <p class="subtitle">End-to-End Encrypted • Peer-to-Peer • Ephemeral</p>
+        </header>
+
+        <!-- Role Selection Screen -->
+        <div id="roleSelection" class="screen active">
+            <div class="card">
+                <h2>Choose Your Role</h2>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="app.selectRole('sender')">
+                        📤 Send File
+                    </button>
+                    <button class="btn btn-secondary" onclick="app.selectRole('receiver')">
+                        📥 Receive File
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sender Screen -->
+        <div id="senderScreen" class="screen">
+            <div class="card">
+                <h2>📤 Send File</h2>
+                
+                <div id="sessionIdDisplay" class="session-info hidden">
+                    <div class="info-box">
+                        <label>Session ID:</label>
+                        <div class="session-id-row">
+                            <code id="sessionIdText"></code>
+                            <button class="btn-copy" onclick="app.copySessionId()">📋 Copy</button>
+                        </div>
+                        <p class="help-text">Share this ID with the receiver</p>
+                    </div>
+                </div>
+
+                <div id="connectionStatus" class="status-box">
+                    <div class="status-indicator">
+                        <span class="status-dot" id="statusDot"></span>
+                        <span id="statusText">Initializing...</span>
+                    </div>
+                </div>
+
+                <div id="fileUploadArea" class="upload-area hidden">
+                    <div class="dropzone" id="dropzone">
+                        <input type="file" id="fileInput" hidden>
+                        <div class="dropzone-content">
+                            <div class="upload-icon">📁</div>
+                            <p><strong>Drag & drop</strong> your file here</p>
+                            <p class="help-text">or click to browse (max 200MB)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="fileInfo" class="file-info hidden">
+                    <div class="file-card">
+                        <div class="file-icon">📄</div>
+                        <div class="file-details">
+                            <div class="file-name" id="fileName"></div>
+                            <div class="file-size" id="fileSize"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="transferProgress" class="progress-section hidden">
+                    <div class="progress-info">
+                        <span id="progressText">Preparing...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="transfer-stats">
+                        <span id="transferSpeed"></span>
+                        <span id="transferEta"></span>
+                    </div>
+                </div>
+
+                <div id="transferComplete" class="success-box hidden">
+                    <div class="success-icon">✅</div>
+                    <h3>Transfer Complete!</h3>
+                    <p>File sent successfully and verified</p>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="app.reset()">Start Over</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Receiver Screen -->
+        <div id="receiverScreen" class="screen">
+            <div class="card">
+                <h2>📥 Receive File</h2>
+                
+                <div id="sessionIdInput" class="input-group">
+                    <label for="sessionInput">Enter Session ID:</label>
+                    <input 
+                        type="text" 
+                        id="sessionInput" 
+                        class="text-input" 
+                        placeholder="Paste session ID here"
+                        autocomplete="off"
+                    >
+                    <button class="btn btn-primary" onclick="app.joinSession()">
+                        Connect
+                    </button>
+                </div>
+
+                <div id="receiverStatus" class="status-box hidden">
+                    <div class="status-indicator">
+                        <span class="status-dot" id="receiverStatusDot"></span>
+                        <span id="receiverStatusText">Connecting...</span>
+                    </div>
+                </div>
+
+                <div id="receiverFileInfo" class="file-info hidden">
+                    <div class="file-card">
+                        <div class="file-icon">📄</div>
+                        <div class="file-details">
+                            <div class="file-name" id="receiverFileName"></div>
+                            <div class="file-size" id="receiverFileSize"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="receiverProgress" class="progress-section hidden">
+                    <div class="progress-info">
+                        <span id="receiverProgressText">Receiving...</span>
+                        <span id="receiverProgressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="receiverProgressFill"></div>
+                    </div>
+                    <div class="transfer-stats">
+                        <span id="receiverTransferSpeed"></span>
+                        <span id="receiverTransferEta"></span>
+                    </div>
+                </div>
+
+                <div id="receiverComplete" class="success-box hidden">
+                    <div class="success-icon">
+                    <h3>File Received!</h3>
+                    <p>Integrity verified • Ready to download</p>
+                    <button class="btn btn-primary" id="downloadBtn">
+                        💾 Download File
+                    </button>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="app.reset()">Start Over</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Display -->
+        <div id="errorBox" class="error-box hidden">
+            <span id="errorText"></span>
+            <button class="btn-close" onclick="app.hideError()">✕</button>
+        </div>
+
+        <!-- Security Info -->
+        <footer class="security-info">
+            <details>
+                <summary>🔒 Security Information</summary>
+                <ul>
+                    <li><strong>End-to-End Encrypted:</strong> Files encrypted with AES-GCM before transmission</li>
+                    <li><strong>Zero Server Storage:</strong> Files never touch the server</li>
+                    <li><strong>Peer-to-Peer:</strong> Direct browser-to-browser transfer via WebRTC</li>
+                    <li><strong>Ephemeral:</strong> Data destroyed when session ends</li>
+                    <li><strong>Integrity Verified:</strong> SHA-256 hash validation</li>
+                </ul>
+            </details>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

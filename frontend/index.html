@@ -38,7 +38,7 @@
                         <label>Session ID:</label>
                         <div class="session-id-row">
                             <code id="sessionIdText"></code>
-                            <button class="btn-copy" onclick="app.copySessionId()">📋 Copy</button>
+                            <button class="btn-copy" onclick="app.copySessionId(event)">📋 Copy</button>
                         </div>
                         <p class="help-text">Share this ID with the receiver</p>
                     </div>
@@ -149,7 +149,7 @@
                 </div>
 
                 <div id="receiverComplete" class="success-box hidden">
-                    <div class="success-icon">
+                    <div class="success-icon">✅</div>
                     <h3>File Received!</h3>
                     <p>Integrity verified • Ready to download</p>
                     <button class="btn btn-primary" id="downloadBtn">

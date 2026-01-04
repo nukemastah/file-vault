@@ -14,13 +14,14 @@ import (
 
 // Message types for WebSocket signaling
 const (
-	MsgTypeJoin    = "join"
-	MsgTypeOffer   = "offer"
-	MsgTypeAnswer  = "answer"
-	MsgTypeICE     = "ice"
-	MsgTypeReady   = "ready"
-	MsgTypeError   = "error"
-	MsgTypeExpired = "expired"
+	MsgTypeJoin       = "join"
+	MsgTypeOffer      = "offer"
+	MsgTypeAnswer     = "answer"
+	MsgTypeICE        = "ice"
+	MsgTypeReady      = "ready"
+	MsgTypePeerJoined = "peer-joined"
+	MsgTypeError      = "error"
+	MsgTypeExpired    = "expired"
 )
 
 // SignalMessage represents WebSocket messages
@@ -336,10 +337,22 @@ func handleJoin(peer *Peer, msg SignalMessage) {
 	session, _ := sessionManager.GetSession(sessionID)
 	session.mu.RLock()
 	bothConnected := session.Sender != nil && session.Receiver != nil
+	var senderPeer *Peer
+	if session.Sender != nil {
+		senderPeer = session.Sender
+	}
 	session.mu.RUnlock()
 
 	if bothConnected {
 		log.Printf("Both peers connected to session: %s", sessionID)
+		// Notify sender that receiver has joined - sender should initiate WebRTC offer
+		if peer.Role == "receiver" && senderPeer != nil {
+			log.Printf("Notifying sender that receiver joined session: %s", sessionID)
+			senderPeer.SendChan <- SignalMessage{
+				Type:      MsgTypePeerJoined,
+				SessionID: sessionID,
+			}
+		}
 	}
 }
 
@@ -350,17 +363,20 @@ func handleRelay(peer *Peer, msg SignalMessage) {
 		return
 	}
 
+	log.Printf("Relaying %s message in session %s", msg.Type, msg.SessionID)
 	err := sessionManager.BroadcastToSession(msg.SessionID, peer.ID, msg)
 	if err != nil {
+		log.Printf("Relay error: %s", err.Error())
 		sendError(peer, err.Error())
 	}
 }
 
 // sendError sends an error message to a peer
 func sendError(peer *Peer, message string) {
+	errorPayload, _ := json.Marshal(map[string]string{"message": message})
 	peer.SendChan <- SignalMessage{
 		Type:    MsgTypeError,
-		Payload: json.RawMessage(`{"message":"` + message + `"}`),
+		Payload: json.RawMessage(errorPayload),
 	}
 }
 

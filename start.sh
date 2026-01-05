@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Secure P2P File Vault - Quick Start Script
+# Secure P2P File Vault - Quick Start Script (Pion WebRTC Edition)
 # This script helps you get started quickly
 
-echo "🔐 Secure P2P File Vault - Quick Start"
-echo "======================================"
+echo "╔════════════════════════════════════════════════════════════╗"
+echo "║        🔐 Secure P2P File Vault (Pion WebRTC)              ║"
+echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 
 # Check if Go is installed
@@ -15,13 +16,14 @@ if ! command -v go &> /dev/null; then
 fi
 
 echo "✅ Go $(go version | awk '{print $3}') detected"
+echo "🔗 Using: pion/webrtc v4"
 echo ""
 
 # Navigate to backend directory
 cd backend
 
 # Download dependencies
-echo "📦 Downloading Go dependencies..."
+echo "📦 Downloading Go dependencies (including Pion WebRTC)..."
 go mod download
 
 if [ $? -ne 0 ]; then

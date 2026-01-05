@@ -1,6 +1,6 @@
 # 🔐 Secure P2P File Vault
 
-A peer-to-peer file sharing application with end-to-end encryption, built with Go and WebRTC. Files are transferred directly between browsers using WebRTC DataChannels with zero server-side storage.
+A peer-to-peer file sharing application with end-to-end encryption, built with Go (Pion WebRTC) and WebRTC. Files are transferred directly between browsers using WebRTC DataChannels with zero server-side storage.
 
 ## 🌟 Features
 
@@ -12,13 +12,14 @@ A peer-to-peer file sharing application with end-to-end encryption, built with G
 - **📊 Real-time Progress**: Transfer speed, ETA, and progress tracking
 - **📱 Responsive UI**: Clean, modern interface that works on all devices
 - **🔐 Session-based**: Unique session IDs for secure peer pairing
+- **🔗 Powered by Pion**: High-performance WebRTC stack in pure Go
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────┐          ┌──────────────────┐          ┌─────────────┐
 │   Sender    │          │  Signaling Server │          │  Receiver   │
-│  (Browser)  │◄────────►│   (Go/WebSocket)  │◄────────►│  (Browser)  │
+│  (Browser)  │◄────────►│ (Go/Pion WebRTC) │◄────────►│  (Browser)  │
 └─────────────┘          └──────────────────┘          └─────────────┘
        │                                                        │
        │                                                        │
@@ -28,10 +29,11 @@ A peer-to-peer file sharing application with end-to-end encryption, built with G
 
 ### Components
 
-1. **Signaling Server (Go)**
+1. **Signaling Server (Go + Pion WebRTC)**
    - WebSocket-based signaling for WebRTC peer discovery
+   - Pion WebRTC for SDP parsing and ICE candidate handling
    - Session lifecycle management
-   - SDP offer/answer and ICE candidate routing
+   - Connection state monitoring
    - No file data handling
 
 2. **Frontend (Vanilla JS + Web Crypto API)**
